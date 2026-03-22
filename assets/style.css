@@ -1,0 +1,6 @@
+body { font-family: Arial, sans-serif; background: #fff; color: #333; }
+.header { background: #b30000; color: white; padding: 18px; border-radius: 6px; margin-bottom: 12px; }
+.controls { display: flex; gap: 12px; margin-bottom: 12px; }
+.kpis { display: flex; gap: 12px; margin-bottom: 12px; }
+.kpi { background: #fff; border: 2px solid #b30000; padding: 12px; border-radius: 6px; width: 180px; text-align: center; }
+.charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
