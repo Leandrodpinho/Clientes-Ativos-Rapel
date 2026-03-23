@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserCheck, Moon, Sun } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
@@ -8,14 +8,6 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
-  const [theme, setTheme] = React.useState<'light' | 'dark'>('light');
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-  };
-
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
@@ -39,30 +31,6 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           </motion.a>
         ))}
       </nav>
-
-      <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-        <button 
-          onClick={toggleTheme}
-          style={{
-            width: '100%',
-            padding: '1rem',
-            borderRadius: '12px',
-            border: '1px solid var(--border-color)',
-            background: 'var(--bg-color)',
-            color: 'var(--text-main)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.75rem',
-            fontWeight: 700,
-            fontSize: '0.9rem'
-          }}
-        >
-          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-          {theme === 'light' ? 'Modo Escuro' : 'Modo Claro'}
-        </button>
-      </div>
     </aside>
   );
 }
