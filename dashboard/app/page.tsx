@@ -187,6 +187,15 @@ export default function DashboardPage() {
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
                 totalPages={totalPages}
+                sheetFilter={sheetFilter}
+                setSheetFilter={setSheetFilter}
+                unidadeFilter={unidadeFilter}
+                setUnidadeFilter={setUnidadeFilter}
+                estadoFilter={estadoFilter}
+                setEstadoFilter={setEstadoFilter}
+                sheets={sheets}
+                unidades={unidades}
+                estados={estados}
               />
             )}
 

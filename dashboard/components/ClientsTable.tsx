@@ -14,6 +14,15 @@ interface ClientsTableProps {
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   totalPages: number;
+  sheetFilter: string;
+  setSheetFilter: (val: string) => void;
+  unidadeFilter: string;
+  setUnidadeFilter: (val: string) => void;
+  estadoFilter: string;
+  setEstadoFilter: (val: string) => void;
+  sheets: string[];
+  unidades: string[];
+  estados: string[];
 }
 
 const PAGE_SIZE = 12;
@@ -30,7 +39,16 @@ export function ClientsTable({
   setSortDir,
   currentPage,
   setCurrentPage,
-  totalPages
+  totalPages,
+  sheetFilter,
+  setSheetFilter,
+  unidadeFilter,
+  setUnidadeFilter,
+  estadoFilter,
+  setEstadoFilter,
+  sheets,
+  unidades,
+  estados
 }: ClientsTableProps) {
   const [selectedClient, setSelectedClient] = useState<ContractData | null>(null);
 
@@ -47,6 +65,46 @@ export function ClientsTable({
       animate={{ opacity: 1, y: 0 }}
       className="table-card glass"
     >
+      <div className="filters-section glass" style={{ padding: '1.5rem 2rem', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem', alignItems: 'flex-end' }}>
+        <div className="filter-group">
+          <label>Unidade Operacional</label>
+          <select value={unidadeFilter} onChange={e => { setUnidadeFilter(e.target.value); setSheetFilter(''); }}>
+            <option value="">Todas as Unidades</option>
+            {unidades.map(u => <option key={u} value={u}>{u}</option>)}
+          </select>
+        </div>
+        <div className="filter-group">
+          <label>Filial / Aba</label>
+          <select value={sheetFilter} onChange={e => { setSheetFilter(e.target.value); setUnidadeFilter(''); }}>
+            <option value="">Todas as Filiais</option>
+            <optgroup label="Minas Gerais">
+              {sheets.filter(s => ['JANAÚBA','MONTES CLAROS','JAÍBA','S. FRANCISCO'].includes(s)).map(s => <option key={s} value={s}>{s}</option>)}
+            </optgroup>
+            <optgroup label="Bahia">
+              {sheets.filter(s => ['GUANAMBI','V. CONQUISTA','CAETITÉ'].includes(s)).map(s => <option key={s} value={s}>{s}</option>)}
+            </optgroup>
+            <optgroup label="Especiais">
+              {sheets.filter(s => ['GRUPOS','ENTES PÚBLICOS'].includes(s)).map(s => <option key={s} value={s}>{s}</option>)}
+            </optgroup>
+          </select>
+        </div>
+        <div className="filter-group">
+          <label>Estado (Brasil)</label>
+          <select value={estadoFilter} onChange={e => setEstadoFilter(e.target.value)}>
+            <option value="">Todos os Estados</option>
+            {estados.map(st => <option key={st} value={st}>{st}</option>)}
+          </select>
+        </div>
+        {(unidadeFilter || sheetFilter || estadoFilter) && (
+          <button 
+            onClick={() => { setUnidadeFilter(''); setSheetFilter(''); setEstadoFilter(''); }}
+            style={{ marginBottom: '0.5rem', background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, cursor: 'pointer', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+          >
+            Limpar Filtros
+          </button>
+        )}
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <h3 className="chart-title" style={{marginBottom: 0, borderBottom: 'none', paddingBottom: 0}}>
           Detalhamento de Clientes ({tableData.length})
