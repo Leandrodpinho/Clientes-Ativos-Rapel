@@ -83,8 +83,16 @@ export function ChartsGroup({
               <YAxis tickFormatter={(val) => `R$ ${(val / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 12, fontWeight: 600}} />
               <Tooltip 
                 formatter={(value: any) => formatCurrency(Number(value))}
-                cursor={{fill: 'var(--primary-glow)'}}
-                contentStyle={{borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-solid)', boxShadow: 'var(--shadow-lg)'}}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                contentStyle={{
+                  borderRadius: '12px',
+                  border: '1px solid var(--border-color)',
+                  background: '#ffffff',
+                  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                  padding: '10px 14px'
+                }}
+                itemStyle={{ color: 'var(--primary)', fontWeight: 700 }}
+                labelStyle={{ fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}
               />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                 {revenueByUnit.map((entry, index) => (
@@ -120,7 +128,16 @@ export function ChartsGroup({
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-solid)', boxShadow: 'var(--shadow-lg)'}} />
+              <Tooltip 
+                contentStyle={{
+                  borderRadius: '12px', 
+                  border: '1px solid var(--border-color)', 
+                  background: '#ffffff', 
+                  boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
+                  padding: '10px 14px'
+                }} 
+                itemStyle={{ color: 'var(--text-main)', fontWeight: 700 }}
+              />
               <Legend verticalAlign="bottom" height={36} iconType="circle" />
             </PieChart>
           </ResponsiveContainer>
