@@ -216,7 +216,7 @@ export default function DashboardPage() {
             )}
 
             {activeTab === 'segmentacao' && (
-              <SegmentationTab segmentationData={segmentationData} />
+              <SegmentationTab segmentationData={segmentationData} allData={data} />
             )}
           </motion.div>
         </AnimatePresence>
