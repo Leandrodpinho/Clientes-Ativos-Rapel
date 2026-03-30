@@ -194,7 +194,7 @@ def process_standard_sheet(df):
     for col in ['CNPJ', 'CPF', 'NOME_FANTASIA', 'INICIO', 'REAJUSTE_TIPO', 'ASOS_RAPEL', 'ASOS_EMPRESA', 'CIDADE']:
         df_out[col] = df_out[col].replace({'nan': '', 'None': '', 'NaN': ''})
     
-    df_out = df_out.dropna(subset=['valor_fixo'])
+    df_out['valor_fixo'] = df_out['valor_fixo'].fillna(0)
     df_out = df_out[df_out['CLIENTE'].astype(str).str.strip() != '']
     df_out = df_out[df_out['CLIENTE'] != 'nan']
     return df_out
@@ -263,7 +263,7 @@ def process_special_sheet(df_raw, sheet_name):
     for col in ['CNPJ', 'CPF', 'NOME_FANTASIA', 'INICIO', 'REAJUSTE_TIPO', 'ASOS_RAPEL', 'ASOS_EMPRESA', 'CIDADE', 'UNIDADE', 'ESTADO', 'CLIENTE']:
         df_out[col] = df_out[col].replace({'nan': '', 'None': '', 'NaN': ''})
     
-    df_out = df_out.dropna(subset=['valor_fixo'])
+    df_out['valor_fixo'] = df_out['valor_fixo'].fillna(0)
     df_out = df_out[df_out['CLIENTE'].astype(str).str.strip() != '']
     df_out = df_out[df_out['CLIENTE'] != '']
     return df_out
@@ -277,9 +277,9 @@ def is_special_sheet(df):
 
 
 def main():
-    file_path = os.path.join(os.path.dirname(__file__), 'PLANILHA DE CONTRATOS ATIVOS.xlsx')
+    file_path = os.path.join(os.path.dirname(__file__), 'processed_csvs', 'PLANILHA DE CONTRATOS ATIVOS.xlsx')
     excel = pd.ExcelFile(file_path)
-    out_dir = os.path.join(os.path.dirname(file_path), 'processed_csvs')
+    out_dir = os.path.join(os.path.dirname(__file__), 'processed_csvs')
     os.makedirs(out_dir, exist_ok=True)
 
     for sheet in excel.sheet_names:

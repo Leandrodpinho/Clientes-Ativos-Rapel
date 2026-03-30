@@ -161,7 +161,7 @@ export async function parseExcelFile(file: File): Promise<ContractData[]> {
           reajuste_text: reajText || '',
           reajuste_percent: reajPerc || 0,
         } as ContractData;
-      }).filter(d => d.CLIENTE && d.valor_fixo > 0);
+      }).filter(d => d.CLIENTE !== '');
       allProcessedData = [...allProcessedData, ...processed];
     } else {
       // Standard sheet logic
@@ -200,7 +200,7 @@ export async function parseExcelFile(file: File): Promise<ContractData[]> {
           reajuste_text: reajText || '',
           reajuste_percent: reajPerc || 0,
         } as ContractData;
-      }).filter(d => d.CLIENTE && d.valor_fixo > 0);
+      }).filter(d => d.CLIENTE !== '');
       allProcessedData = [...allProcessedData, ...processed];
     }
   }

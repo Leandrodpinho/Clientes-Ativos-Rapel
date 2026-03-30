@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const csvDirPath = path.join(process.cwd(), '../processed_csvs');
