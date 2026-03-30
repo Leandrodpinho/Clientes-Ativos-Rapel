@@ -142,6 +142,168 @@ def find_asos_rapel_column(df):
 def find_asos_empresa_column(df):
     return find_column_by_keywords(df, ['ASOS EMPRESA'])
 
+def find_segmento_column(df):
+    return find_column_by_keywords(df, ['SEGMENTO', 'SETOR', 'CATEGORIA', 'RAMO'])
+
+def clean_cnpj(val):
+    if not val or pd.isna(val) or str(val).lower() == 'nan': return None
+    s = str(val).replace('.', '').replace('-', '').replace('/', '').strip()
+    return s if len(s) == 14 else None
+
+def map_cnae_to_segment(cnae):
+    """Mapeia descrições técnicas de CNAEs para categorias amigáveis."""
+    cnae = str(cnae).upper()
+    
+    # Saúde (Prioridade 1)
+    if any(k in cnae for k in ['SAÚDE', 'MÉDICA', 'HOSPITAL', 'CLÍNICA', 'ODONTO', 'PSICOLOGIA', 'ENFERMAGEM', 'LABORATÓRIO', 'FARMÁCIA', 'DROGARIA', 'CIRURGIA', 'FISIOTERAPIA', 'REABILITAÇÃO', 'RADIOLOGIA', 'ULTRA', 'IMAGEM', 'OFTALMO', 'DIAGNÓSTICO', 'TERAPIA', 'FARMACÊUTICOS', 'RESSONÂNCIA', 'IDOSA', 'IDOSO', 'HEMODIÁLISE', 'AMBULATORIAL', 'PSICOPEDAGOGIA']):
+        return 'Saúde'
+        
+    # Agronegócio (Prioridade 2)
+    if any(k in cnae for k in ['CULTIVO', 'AGRO', 'FAZENDA', 'PECUÁRIA', 'LAVOURA', 'CRIAÇÃO DE', 'EXTRATIVISMO', 'PRODUÇÃO DE', 'FLORESTAL', 'PESCA', 'AQUICULTURA', 'FRUTICULTURA', 'HORTICULTURA', 'CEREALISTA', 'CEREAIS', 'DEFENSIVOS', 'FERTILIZANTES', 'ADUBOS', 'APOIO À AGRICULTURA', 'MATÉRIAS-PRIMAS AGRÍCOLAS', 'ANIMAIS VIVOS', 'VET', 'VETERINÁRIO']):
+        return 'Agronegócio'
+        
+    # Indústria (Prioridade 3)
+    if any(k in cnae for k in ['FABRICAÇÃO', 'INDÚSTRIA', 'METAL', 'TÊXTIL', 'CERÂMICA', 'USINA', 'MARCENARIA', 'GRÁFICA', 'MÓVEIS', 'COSMÉTICOS', 'MINERAÇÃO', 'EMBALAGENS', 'PANIFICAÇÃO', 'AÇO', 'ESTOFADOS', 'FRIGORÍFICO', 'ABATE', 'BOVINOS', 'CONFECÇÃO', 'TECELAGEM', 'BENEFICIAMENTO', 'FUNDIÇÃO']):
+        return 'Indústria'
+        
+    # Indústria / Alimentos e Gastronomia
+    if any(k in cnae for k in ['ALIMENTOS', 'BEBIDAS', 'PANIFICAÇÃO', 'FRIGORÍFICO', 'ABATE', 'LATICÍNIOS', 'SORVETES', 'PADARIA', 'CONFEITARIA', 'PESCADOS', 'CARNES', 'CHURRASCARIA', 'RESTAURANTE', 'LANCHONETE', 'BUFFET', 'COZINHA', 'PRODUTOS ALIMENTÍCIOS', 'MINIMERCADO', 'MERCEARIA']):
+        if any(k in cnae for k in ['RESTAURANTE', 'LANCHONETE', 'BUFFET', 'HOTEL', 'POUSADA', 'HOSPEDAGEM', 'BAR', 'RESTAURANTES']):
+            return 'Hotelaria / Gastronomia'
+        return 'Indústria / Alimentos'
+        
+    # Construção Civil
+    if any(k in cnae for k in ['CONSTRUÇÃO', 'ENGENHARIA', 'OBRAS', 'REFORMA', 'EDIFICAÇÕES', 'INSTALAÇÕES', 'PINTURA', 'ELÉTRICA', 'HIDRÁULICA', 'SOLAR', 'PEDRAS', 'INCORPORAÇÃO', 'LOTEAMENTO', 'TERRAPLENAGEM', 'DEMOLIÇÃO']):
+        return 'Construção Civil'
+        
+    # Varejo
+    if any(k in cnae for k in ['SUPERMERCADO', 'LOJA', 'VAREJO', 'CONVENIÊNCIA', 'PAPELARIA', 'VESTUÁRIO', 'MODA', 'MÓVEIS', 'ELETRODOMÉSTICOS', 'PERFUMARIA', 'LOTÉRICA', 'ELETRÔNICOS', 'FERRAGENS', 'FERRAMENTAS', 'MATERIAIS DE CONSTRUÇÃO', 'ARMÁZÉM', 'VARIEDADES', 'CALÇADOS', 'OTICA', 'ÓTICA', 'MERCADORIAS EM GERAL']):
+        return 'Varejo'
+        
+    # Setor Público
+    if any(k in cnae for k in ['ADMINISTRAÇÃO PÚBLICA', 'DEFESA', 'JUSTIÇA', 'ÓRGÃO', 'MUNICIPAL', 'ESTADUAL', 'MUNICIPIO', 'MUNICÍPIO', 'PREFEITURA', 'CÂMARA', 'CONSORCIO', 'CONSELHO']):
+        return 'Setor Público'
+        
+    # Educação
+    if any(k in cnae for k in ['ENSINO', 'EDUCAÇÃO', 'ESCOLA', 'CURSO', 'TREINAMENTO', 'PALESTRAS', 'FACULDADE', 'UNIVERSIDADE', 'COLÉGIO', 'EDUCACIONAL', 'ESTUDOS']):
+        return 'Educação'
+        
+    # Automotivo
+    if any(k in cnae for k in ['AUTO', 'MOTOR', 'VEÍCULO', 'MECÂNICA', 'PEÇAS', 'CONCESSIONÁRIA', 'PNEUS', 'COMBUSTÍVEIS', 'POSTO', 'OFICINA', 'LUBRIFICANTE', 'SCOOTER', 'MOTOCICLETA', 'REPARAÇÃO DE VEÍCULOS']):
+        return 'Automotivo'
+        
+    # Transporte / Logística
+    if any(k in cnae for k in ['TRANSPORTE', 'MUDANÇA', 'LOGÍSTICA', 'FRETE', 'ARMAZÉM', 'CARGA', 'ENTREGA', 'TÁXI', 'ESTOCAGEM', 'COLETA DE RESÍDUOS', 'RESÍDUOS']):
+        return 'Transporte / Logística'
+        
+    # Serviços Especializados
+    if any(k in cnae for k in ['CONSULTORIA', 'CONTABILIDADE', 'ADVOGADO', 'LIMPEZA', 'CONSERVAÇÃO', 'VIGILÂNCIA', 'AUDITORIA', 'SEGURANÇA', 'IMOBILIÁRIA', 'SINDICATO', 'ASSOCIAÇÃO', 'ASSOCIATIVAS', 'ADMINISTRAÇÃO DE BENS', 'CONDOMÍNIO', 'CONDOMINIO', 'CONTADORA', 'ADVOCACIA', 'FUNERÁRIA', 'ESTÉTICA', 'BELEZA', 'ACADEMIA', 'ESCRITÓRIO', 'APOIO ADMINISTRATIVO', 'RELIGIOSAS', 'PATRONAIS', 'PARTNERS', 'BENS']):
+        return 'Serviços'
+        
+    return 'Outros / Não Informado'
+
+def load_cnpj_cache():
+    cache_path = 'processed_csvs/cnpj_cache.json'
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def auto_segmentar(nome):
+    """Lógica agressiva de auto-segmentação por palavras-chave no nome."""
+    nome = str(nome).upper()
+    
+    # Setor Público
+    if any(k in nome for k in ['MUNICIPIO', 'MUNICÍPIO', 'PREFEITURA', 'CÂMARA', 'CONSORCIO', 'CONVÊNIA', 'PÚBLICO', 'GABINETE', 'ÓRGÃO', 'SECRETARIA']):
+        return 'Setor Público'
+    # Saúde
+    if any(k in nome for k in ['CLÍNICA', 'HOSPITAL', 'MÉDICO', 'ODONTO', 'SAÚDE', 'DROGARIA', 'FARMÁCIA', 'ULTRA', 'LABORATÓRIO', 'FISIO', 'CIRURGIA', 'CARDIOPULMONAR', 'BUCOMAXILO', 'CAPILAR', 'IMAGEM', 'OFTALMO', 'CHECK UP', 'VITALLE', 'DIAGNOSTIC', 'DIAGNÓSTIC', 'ECO SOM', 'EMEPSI']):
+        return 'Saúde'
+    # Alimentação / Bebidas
+    if any(k in nome for k in ['SORVETES', 'CEREAIS', 'PESCADOS', 'LATICÍNIOS', 'PADARIA', 'LANCHONETE', 'RESTAURANTE', 'CONFEITARIA', 'BUFFET', 'AÇOUGUE', 'DISTRIBUIDORA DE BEBIDAS', 'FRUTAS', 'ALIMENTOS', 'PANIFICAÇÃO', 'PAES E CARNES']):
+        return 'Hotelaria / Gastronomia' if 'RESTAURANTE' in nome or 'HOTEL' in nome else 'Indústria / Alimentos'
+    # Construção / Energia
+    if any(k in nome for k in ['CONSTRUTORA', 'ENGENHARIA', 'OBRAS', 'REFORMA', 'EMPREENDIMENTOS', 'PEDRAS', 'CERÂMICA', 'TIJOLOS', 'CONSTRUMINAS', 'SOLARES', 'INCORPORAÇÃO', 'SPE LTDA', 'CFCON', 'EDIFICACOES']):
+        return 'Construção Civil'
+    # Varejo
+    if any(k in nome for k in ['SUPERMERCADO', 'COMÉRCIO', 'LOJA', 'VAREJO', 'MAGAZINE', 'CALÇADOS', 'VESTUÁRIO', 'MOVEIS', 'MÓVEIS', 'PAPELARIA', 'LOTÉRICA', 'PONTO DA SORTE', 'BOUTIQUE', 'MODA', 'COSMETICOS', 'PERFUMARIA', 'ELETRO', 'ZENITH', 'VENDAS']):
+        return 'Varejo'
+    # Automotivo
+    if any(k in nome for k in ['AUTO', 'POSTO', 'PEÇAS', 'MECÂNICA', 'VEÍCULOS', 'MOTORS', 'TRANSPORTE', 'PNEUS', 'COMBUSTÍVEIS', 'SCOOTER', 'MOTOCICLETA']):
+        return 'Automotivo'
+    # Agronegócio
+    if any(k in nome for k in ['AGRO', 'FAZENDA', 'RURAL', 'CAFÉ', 'GRANJA', 'PRODUTOR', 'IRRIG', 'GORUTUBA', 'AGRICULTORES', 'FRUTICULTORES', 'CULTIVO', 'CEREALISTA']):
+        return 'Agronegócio'
+    # Outros Setores (Indústria)
+    if any(k in nome for k in ['FÁBRICA', 'INDÚSTRIA', 'GRÁFICA', 'MARCENARIA', 'MINERACAO', 'MINERAÇÃO', 'AÇO', 'ESTOFADOS', 'COLCHOES', 'EMBALAGENS', 'CONFECCOES', 'CERAMICA']):
+        return 'Indústria'
+    # Educação
+    if any(k in nome for k in ['ESCOLA', 'EDUCAÇÃO', 'ENSINO', 'FACULDADE', 'COLEGIO', 'COLÉGIO', 'ARCO IRIS', 'EDUCACIONAL']):
+        return 'Educação'
+    # Serviços / Terceiro Setor
+    if any(k in nome for k in ['SERVIÇOS', 'CONSULTORIA', 'SOLUÇÕES', 'ASSESSORIA', 'ASSOCIAÇÃO', 'ASILO', 'ABME', 'APAE', 'FILANTRÓPICA', 'ONG', 'SINDICATO', 'SANTÁRIO', 'FUNDAÇÃO', 'PAULA ELIZABETE', 'SOCIAL', 'CONDOMINIO', 'CONDOMÍNIO', 'CONTABIL', 'CONTADORA', 'ADVOCACIA', 'STAINLESS', 'FUNERARIA', 'RESGATE', 'CENTRAL DE GESTAO', 'PARTNERS']):
+        return 'Serviços'
+    if any(k in nome for k in ['LOGÍSTICA', 'FRETE', 'CARG', 'MUDANÇA']):
+        return 'Transporte / Logística'
+    if any(k in nome for k in ['HOTEL', 'POUSADA', 'PALACE']):
+        return 'Hotelaria / Gastronomia'
+        
+    return 'Outros / Não Informado'
+
+def load_cnpj_cache():
+    cache_path = 'processed_csvs/cnpj_cache.json'
+    if os.path.exists(cache_path):
+        try:
+            with open(cache_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def auto_segmentar(nome):
+    """Lógica agressiva de auto-segmentação por palavras-chave no nome."""
+    nome = str(nome).upper()
+    
+    # Setor Público
+    if any(k in nome for k in ['MUNICIPIO', 'MUNICÍPIO', 'PREFEITURA', 'CÂMARA', 'CONSORCIO', 'CONVÊNIA', 'PÚBLICO', 'GABINETE', 'ÓRGÃO', 'SECRETARIA']):
+        return 'Setor Público'
+    # Saúde
+    if any(k in nome for k in ['CLÍNICA', 'HOSPITAL', 'MÉDICO', 'ODONTO', 'SAÚDE', 'DROGARIA', 'FARMÁCIA', 'ULTRA', 'LABORATÓRIO', 'FISIO', 'CIRURGIA', 'CARDIOPULMONAR', 'BUCOMAXILO', 'CAPILAR', 'IMAGEM', 'OFTALMO', 'CHECK UP', 'VITALLE', 'DIAGNOSTIC', 'DIAGNÓSTIC', 'ECO SOM', 'EMEPSI']):
+        return 'Saúde'
+    # Alimentação / Bebidas
+    if any(k in nome for k in ['SORVETES', 'CEREAIS', 'PESCADOS', 'LATICÍNIOS', 'PADARIA', 'LANCHONETE', 'RESTAURANTE', 'CONFEITARIA', 'BUFFET', 'AÇOUGUE', 'DISTRIBUIDORA DE BEBIDAS', 'FRUTAS', 'ALIMENTOS', 'PANIFICAÇÃO', 'PAES E CARNES']):
+        return 'Hotelaria / Gastronomia' if 'RESTAURANTE' in nome or 'HOTEL' in nome else 'Indústria / Alimentos'
+    # Construção / Energia
+    if any(k in nome for k in ['CONSTRUTORA', 'ENGENHARIA', 'OBRAS', 'REFORMA', 'EMPREENDIMENTOS', 'PEDRAS', 'CERÂMICA', 'TIJOLOS', 'CONSTRUMINAS', 'SOLARES', 'INCORPORAÇÃO', 'SPE LTDA', 'CFCON', 'EDIFICACOES']):
+        return 'Construção Civil'
+    # Varejo
+    if any(k in nome for k in ['SUPERMERCADO', 'COMÉRCIO', 'LOJA', 'VAREJO', 'MAGAZINE', 'CALÇADOS', 'VESTUÁRIO', 'MOVEIS', 'MÓVEIS', 'PAPELARIA', 'LOTÉRICA', 'PONTO DA SORTE', 'BOUTIQUE', 'MODA', 'COSMETICOS', 'PERFUMARIA', 'ELETRO', 'ZENITH', 'VENDAS']):
+        return 'Varejo'
+    # Automotivo
+    if any(k in nome for k in ['AUTO', 'POSTO', 'PEÇAS', 'MECÂNICA', 'VEÍCULOS', 'MOTORS', 'TRANSPORTE', 'PNEUS', 'COMBUSTÍVEIS', 'SCOOTER', 'MOTOCICLETA']):
+        return 'Automotivo'
+    # Agronegócio
+    if any(k in nome for k in ['AGRO', 'FAZENDA', 'RURAL', 'CAFÉ', 'GRANJA', 'PRODUTOR', 'IRRIG', 'GORUTUBA', 'AGRICULTORES', 'FRUTICULTORES', 'CULTIVO', 'CEREALISTA']):
+        return 'Agronegócio'
+    # Outros Setores (Indústria)
+    if any(k in nome for k in ['FÁBRICA', 'INDÚSTRIA', 'GRÁFICA', 'MARCENARIA', 'MINERACAO', 'MINERAÇÃO', 'AÇO', 'ESTOFADOS', 'COLCHOES', 'EMBALAGENS', 'CONFECCOES', 'CERAMICA']):
+        return 'Indústria'
+    # Educação
+    if any(k in nome for k in ['ESCOLA', 'EDUCAÇÃO', 'ENSINO', 'FACULDADE', 'COLEGIO', 'COLÉGIO', 'ARCO IRIS', 'EDUCACIONAL']):
+        return 'Educação'
+    # Serviços / Terceiro Setor
+    if any(k in nome for k in ['SERVIÇOS', 'CONSULTORIA', 'SOLUÇÕES', 'ASSESSORIA', 'ASSOCIAÇÃO', 'ASILO', 'ABME', 'APAE', 'FILANTRÓPICA', 'ONG', 'SINDICATO', 'SANTÁRIO', 'FUNDAÇÃO', 'PAULA ELIZABETE', 'SOCIAL', 'CONDOMINIO', 'CONDOMÍNIO', 'CONTABIL', 'CONTADORA', 'ADVOCACIA', 'STAINLESS', 'FUNERARIA', 'RESGATE', 'CENTRAL DE GESTAO', 'PARTNERS']):
+        return 'Serviços'
+    if any(k in nome for k in ['LOGÍSTICA', 'FRETE', 'CARG', 'MUDANÇA']):
+        return 'Transporte / Logística'
+    if any(k in nome for k in ['HOTEL', 'POUSADA', 'PALACE']):
+        return 'Hotelaria / Gastronomia'
+        
+    return 'Outros / Não Informado'
+
 # ── Sheet processors ─────────────────────────────────────────────────────────
 
 def process_standard_sheet(df):
@@ -161,6 +323,10 @@ def process_standard_sheet(df):
     reaj_tipo_col = find_reajuste_tipo_column(df)
     asos_rapel_col = find_asos_rapel_column(df)
     asos_empresa_col = find_asos_empresa_column(df)
+    seg_col = find_segmento_column(df)
+    
+    # Carregar cache de CNPJs para segmentação precisa
+    cnpj_cache = load_cnpj_cache()
     
     s = df[val_col].astype('object')
     
@@ -176,6 +342,25 @@ def process_standard_sheet(df):
     df_out['REAJUSTE_TIPO'] = df[reaj_tipo_col].astype(str).str.strip() if reaj_tipo_col else ''
     df_out['ASOS_RAPEL'] = df[asos_rapel_col].astype(str).str.strip() if asos_rapel_col else ''
     df_out['ASOS_EMPRESA'] = df[asos_empresa_col].astype(str).str.strip() if asos_empresa_col else ''
+    
+    # Segmento com prioridade para Cache de CNPJ -> SEGMENTO oficial -> Auto-segmentação
+    segments = []
+    for idx, row in df.iterrows():
+        # 1. Tentar por Cache de CNPJ (CNAE)
+        cc = clean_cnpj(row[cnpj_col]) if cnpj_col else None
+        if cc and cc in cnpj_cache:
+            segments.append(map_cnae_to_segment(cnpj_cache[cc]))
+            continue
+            
+        # 2. Tentar por coluna oficial se existir
+        if seg_col and not pd.isna(row[seg_col]):
+            segments.append(str(row[seg_col]).strip())
+            continue
+            
+        # 3. Fallback: Auto-segmentar pelo nome
+        segments.append(auto_segmentar(row[name_col]))
+    
+    df_out['SEGMENTO'] = segments
     
     df_out['valor_fixo'] = s.apply(parse_currency)
     df_out['limite_func'] = s.apply(parse_int)
@@ -245,6 +430,17 @@ def process_special_sheet(df_raw, sheet_name):
     df_out['REAJUSTE_TIPO'] = ''
     df_out['ASOS_RAPEL'] = ''
     df_out['ASOS_EMPRESA'] = safe_col(9) if len(df.columns) > 9 else ''
+    
+    # No processamento especial, aplicar a mesma lógica de prioridade
+    cnpj_cache = load_cnpj_cache()
+    segments = []
+    for _, row in df_out.iterrows():
+        cc = clean_cnpj(row['CNPJ'])
+        if cc and cc in cnpj_cache:
+            segments.append(map_cnae_to_segment(cnpj_cache[cc]))
+        else:
+            segments.append(auto_segmentar(row['CLIENTE']))
+    df_out['SEGMENTO'] = segments
     
     df_out['valor_fixo'] = s.apply(parse_currency)
     df_out['limite_func'] = s.apply(parse_int)

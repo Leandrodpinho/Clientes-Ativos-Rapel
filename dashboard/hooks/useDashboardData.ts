@@ -45,6 +45,7 @@ interface UseDashboardDataReturn {
   revenueByUnit: { name: string, value: number }[];
   stateDistribution: { name: string, value: number }[];
   contractsByUnit: { name: string, count: number }[];
+  segmentationData: { name: string, value: number }[];
   
   tableData: ContractData[];
   pagedData: ContractData[];
@@ -198,6 +199,16 @@ export function useDashboardData(): UseDashboardDataReturn {
     return Array.from(map, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
   }, [filteredData]);
 
+  const segmentationData = useMemo(() => {
+    const map = new Map<string, number>();
+    filteredData.forEach(d => {
+      const seg = d.SEGMENTO || 'Outros / Não Informado';
+      map.set(seg, (map.get(seg) || 0) + 1);
+    });
+    return Array.from(map, ([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [filteredData]);
+
   const tableData = useMemo(() => {
     let result = [...filteredData];
     if (searchTerm) {
@@ -246,7 +257,7 @@ export function useDashboardData(): UseDashboardDataReturn {
     selectedDistUnit, setSelectedDistUnit, splitRatio, setSplitRatio,
     filteredData, sheets, estados, unidades,
     totalContracts, totalRevenue, avgRevenue,
-    revenueByUnit, stateDistribution, contractsByUnit,
+    revenueByUnit, stateDistribution, contractsByUnit, segmentationData,
     tableData, pagedData, totalPages,
     distributionData
   };

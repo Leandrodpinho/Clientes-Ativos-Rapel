@@ -1,10 +1,10 @@
 import React from 'react';
-import { LayoutDashboard, Users, UserCheck } from 'lucide-react';
+import { LayoutDashboard, Users, UserCheck, PieChart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'clientes' | 'distribuicao';
-  setActiveTab: (tab: 'dashboard' | 'clientes' | 'distribuicao') => void;
+  activeTab: 'dashboard' | 'clientes' | 'distribuicao' | 'segmentacao';
+  setActiveTab: (tab: 'dashboard' | 'clientes' | 'distribuicao' | 'segmentacao') => void;
 }
 
 export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
@@ -19,6 +19,7 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           { id: 'dashboard', label: 'Dashboard Geral', icon: <LayoutDashboard size={20} /> },
           { id: 'clientes', label: 'Clientes Ativos', icon: <Users size={20} /> },
           { id: 'distribuicao', label: 'Distribuição Técnicos', icon: <UserCheck size={20} /> },
+          { id: 'segmentacao', label: 'Segmentação', icon: <PieChart size={20} /> },
         ].map((item) => (
           <motion.a
             key={item.id}

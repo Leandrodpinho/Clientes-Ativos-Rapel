@@ -11,9 +11,10 @@ import { ChartsGroup } from '../components/ChartsGroup';
 import { ClientsTable } from '../components/ClientsTable';
 import { DistributionTab } from '../components/DistributionTab';
 import { ExcelUpload } from '../components/ExcelUpload';
+import { SegmentationTab } from '../components/SegmentationTab';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'clientes' | 'distribuicao'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'clientes' | 'distribuicao' | 'segmentacao'>('dashboard');
 
   const {
     data, loading, refreshing, error, handleRefresh, importExcelData,
@@ -22,7 +23,7 @@ export default function DashboardPage() {
     selectedDistUnit, setSelectedDistUnit, splitRatio, setSplitRatio,
     sheets, estados, unidades,
     totalContracts, totalRevenue, avgRevenue,
-    revenueByUnit, stateDistribution, contractsByUnit,
+    revenueByUnit, stateDistribution, contractsByUnit, segmentationData,
     tableData, pagedData, totalPages,
     distributionData
   } = useDashboardData();
@@ -50,11 +51,13 @@ export default function DashboardPage() {
               {activeTab === 'dashboard' && 'Painel Executivo'}
               {activeTab === 'clientes' && 'Gestão de Clientes'}
               {activeTab === 'distribuicao' && 'Distribuição de Carteira'}
+              {activeTab === 'segmentacao' && 'Segmentação de Mercado'}
             </h1>
             <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
               {activeTab === 'dashboard' && 'Métricas analíticas da operação e saúde financeira.'}
               {activeTab === 'clientes' && 'Visão detalhada de todos os contratos ativos na rede.'}
               {activeTab === 'distribuicao' && 'Otimização de produtividade entre técnicos sênior e júnior.'}
+              {activeTab === 'segmentacao' && 'Análise de concentração de clientes por setor de atividade.'}
             </p>
           </div>
           <div className="header-actions">
@@ -210,6 +213,10 @@ export default function DashboardPage() {
                 setSplitRatio={setSplitRatio}
                 data={data}
               />
+            )}
+
+            {activeTab === 'segmentacao' && (
+              <SegmentationTab segmentationData={segmentationData} />
             )}
           </motion.div>
         </AnimatePresence>

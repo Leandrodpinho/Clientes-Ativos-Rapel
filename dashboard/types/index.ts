@@ -8,6 +8,7 @@ export interface ContractData {
   CPF: string;
   CIDADE: string;
   INICIO: string;
+  SEGMENTO: string;
   valor_fixo: number;
   limite_func: number;
   valor_por_func_acima: number;
